@@ -7,17 +7,21 @@ reset. Import individual renderers explicitly. Advanced Console methods are
 provided by `rich::presentation::Console`; JSON methods by
 `rich::json_console::Console`.
 
-Optional adapters require dependency features:
+Adapters are imported explicitly; applications add their own json/log
+dependencies when they use them. The rich package never imports either package,
+including when a bootstrap seed compiles every library module.
 
-```toml
-dependencies = ["path@../rich[json,logging]"]
-```
+`rich::json_render::render_json(value)` accepts a parsed value with `stringify()`.
+`render_json_source(text)` only changes layout: validate untrusted input with the
+application's JSON parser first. It now returns str directly. Console methods are
+available through `rich::json_console::Console`.
 
-Use `rich::json_render` / `rich::json_console` with `json`, and
-`rich::logging` with `logging` (or request `full`). Color labels for logging are
-supplied here; the log package has no dependency back to Rich. Console output
-checks the destination TTY, non-empty NO_COLOR and TERM=dumb. Explicit `styled`
-returns escape sequences regardless of terminal policy.
+`rich::logging::colored_formatter(formatter)` decorates the supplied formatter;
+construct the logger with `log::Logger::console_with_formatter`. Rich no longer
+owns a separate logger builder or file/writer wrappers. Use log's Logger and
+sink APIs for those. Console output checks the destination TTY, non-empty
+NO_COLOR and TERM=dumb. Explicit `styled` returns escape sequences regardless of
+terminal policy.
 
 The redundant build.enq has been removed: Encore discovers runtime.c directly.
 
@@ -50,7 +54,7 @@ Current modules:
 - `Table`
 - `TreeNode`
 - `CompilerReport`
-- `rich.logging` helpers over the `log` refrain
+- `rich.logging` palette adapters for caller-provided formatters
 
 Logical structure:
 
@@ -60,7 +64,7 @@ Logical structure:
 - `progress`, `live`, `status`, `spinner`: dynamic workflow views
 - `prompt`: interactive input, validation, retry, typed results
 - `pretty`, `inspect`, `json_render`, `traceback`: diagnostics and developer-facing output
-- `logging`: bridge to `log` with console/file/writer sinks
+- `logging`: palettes and generic formatter adapters; sinks belong to log
 
 Overview examples are available in the package's [`examples/`](examples/) directory:
 
@@ -148,7 +152,7 @@ fn main() -> u32 {
 ```encore
 import core::vec::Vec
 import json::{Json, field}
-import rich::presentation::Console
+import rich::json_console::Console
 
 fn main() -> u32 {
     let console = Console::new()
@@ -420,36 +424,18 @@ fn main() -> u32 {
 ## Logging
 
 ```encore
-import core::os::{file_exists, read_file, write_file}
-import log::Writable
-import rich::logging::{RichLoggerBuilder, compact_formatter, file_logger}
+import log::{Formatter, Logger}
+import rich::logging::colored_formatter
 
-struct CaptureFile {
-    path: str
-}
-
-impl Writable for CaptureFile {
-    fn write(self: CaptureFile, value: str) -> i32 {
-        let mut current = ""
-        if file_exists(self.path) {
-            current = read_file(self.path)
-        }
-        ret write_file(self.path, current + value)
-    }
-}
-
-fn main() -> u32 {
-    let file = file_logger("bootstrap", "target/bootstrap.log")
-    file.warn("file log")
-
-    let mut builder = RichLoggerBuilder::new("bootstrap")
-    builder.add_console_with_formatter(compact_formatter())
-    builder.add_writer(CaptureFile{"target/bootstrap-writer.log"} as dyn Writable)
-    let logger = builder.build()
-    logger.info("console + writer log")
-    ret 0_u32
-}
+let formatter = colored_formatter(Formatter::plain())
+let mut logger = Logger::console_with_formatter("bootstrap", formatter)
+logger.add_file_sink("target/bootstrap.log")
+logger.info("console and plain file output")
 ```
+
+The formatter is supplied by the application, so merely using Rich's console
+loads no logging dependency. `compact_formatter(formatter)` hides the target;
+`plain_compact_formatter(formatter)` also disables color.
 
 ## Dashboard Helpers
 

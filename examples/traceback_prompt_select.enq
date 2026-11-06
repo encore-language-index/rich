@@ -1,7 +1,9 @@
 import core::vec::Vec
 import core::fmt::Debug
-import rich::{Console, Prompt, SelectPrompt, Theme, TraceFrame, Traceback, parse_identifier, parse_usize_or}
-
+import rich::presentation::{Console}
+import rich::prompt::{Prompt, SelectPrompt, parse_identifier, parse_usize_or}
+import rich::theme::{Theme}
+import rich::traceback::{TraceFrame, Traceback}
 fn main() -> u32 {
     let console = Console::new()
 

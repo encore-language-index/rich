@@ -1,5 +1,8 @@
-import rich::{CompilerReport, Console, StageProgress, Theme, Traceback}
-
+import rich::report::{CompilerReport}
+import rich::presentation::{Console}
+import rich::progress::{StageProgress}
+import rich::theme::{Theme}
+import rich::traceback::{Traceback}
 fn main() -> u32 {
     let console = Console::new()
     let theme = Theme::compiler()

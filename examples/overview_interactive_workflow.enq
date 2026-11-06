@@ -1,8 +1,11 @@
 import core::fmt::Debug
 import core::result::Result
 import core::vec::Vec
-import rich::{Console, LiveFrame, LiveView, Prompt, RetryPolicy, SelectPrompt, Theme, TraceFrame, Traceback}
-
+import rich::presentation::{Console}
+import rich::live::{LiveFrame, LiveView}
+import rich::prompt::{Prompt, RetryPolicy, SelectPrompt}
+import rich::theme::{Theme}
+import rich::traceback::{TraceFrame, Traceback}
 fn main() -> u32 {
     let console = Console::new()
     let theme = Theme::compiler()

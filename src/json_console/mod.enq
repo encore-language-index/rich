@@ -1,23 +1,12 @@
-import json::Json
-
-pub import refrain::console::Console
+pub import refrain::presentation::Console
 import refrain::json_render::{render_json, render_json_source}
 
 impl for Console {
-    pub fn json(self, value: Json) ->() {
-        ret self.println(render_json(value))
+    pub fn json[Value](self, value: Value) ->() {
+        self.println(render_json(value))
     }
 
     pub fn json_source(self, source: str) ->() {
-        match render_json_source(source) {
-            Ok(rendered) => {
-                self.println(rendered)
-            }
-            Err(message) => {
-                self.error(message)
-            }
-        }
-        ret()
+        self.println(render_json_source(source))
     }
-
 }

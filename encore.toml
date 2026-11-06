@@ -7,8 +7,3 @@ description = "Console rendering helpers inspired by Rich"
 readme = "README.md"
 licence = "MIT"
 dependencies = ["path@../std"]
-
-[features]
-json = ["path@../json"]
-logging = ["path@../log"]
-full = ["json", "logging"]

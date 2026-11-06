@@ -1,7 +1,6 @@
 import core::vec::Vec
 import json::{Json, field}
-import rich::Console
-
+import rich::json_console::{Console}
 fn main() -> u32 {
     let console = Console::new()
 

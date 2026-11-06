@@ -1,7 +1,17 @@
+import log::{Logger, Formatter}
+import rich::logging::colored_formatter
 import core::vec::Vec
 import json::{Json, field}
-import rich::{Console, Layout, LiveFrame, LiveView, Panel, ProgressBar, ProgressView, Spinner, Table, TreeNode, console_logger, pretty_kv, status}
-
+import rich::json_console::{Console}
+import rich::layout::{Layout}
+import rich::live::{LiveFrame, LiveView}
+import rich::panel::{Panel}
+import rich::progress::{ProgressBar, ProgressView}
+import rich::spinner::{Spinner}
+import rich::table::{Table}
+import rich::tree::{TreeNode}
+import rich::pretty::{pretty_kv}
+import rich::status::{status}
 fn main() -> u32 {
     let console = Console::new()
     console.rule("Build")
@@ -57,7 +67,7 @@ fn main() -> u32 {
     live.push(LiveFrame::with_footer("Tick 2", "translate eHIR", "done"))
     console.live_view(live)
 
-    let logger = console_logger("rich-example")
+    let logger = Logger::console_with_formatter("rich-example", colored_formatter(Formatter::plain()))
     logger.info("example complete")
     ret 0_u32
 }
