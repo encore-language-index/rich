@@ -1,7 +1,7 @@
 import core::vec::Vec
-import json::{Json, field}
-import rich::Console
 
+import json::{Json, field}
+import rich::json_console::Console
 fn main() -> u32 {
     let console = Console::new()
 
@@ -18,6 +18,6 @@ fn main() -> u32 {
     let mut payload = Vec[(str, Json)]::new()
     payload.push(field("name", Json::String("encore")))
     payload.push(field("compiler", Json::Bool(true)))
-    console.json(Json::Object(payload))
+    console.json(Json::Object(payload).stringify())
     ret 0_u32
 }

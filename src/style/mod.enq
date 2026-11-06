@@ -1,4 +1,4 @@
-import colorterm::{styled, Color, Style}
+import refrain::ansi::{Color, Style, styled}
 
 pub fn accent(text: str) -> str {
     ret styled(text, Color::Cyan, Style::Bold)

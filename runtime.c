@@ -18,18 +18,17 @@
 #include <unistd.h>
 #endif
 
-typedef struct {
-    size_t ref_count;
-    size_t len;
-    char data[];
-} encore_str_object;
-
-typedef struct {
-    encore_str_object *object;
-} encore_str;
-
-extern void *encore_str_from_cstr(const char *value);
-extern encore_str encore_str_from_codepoint(size_t value);
+/* The include path is supplied by Encore. The relative fallback also
+ * supports the .14 bootstrap and SDK sibling-directory development. */
+#if defined(__has_include)
+# if __has_include(<runtime_abi.h>)
+#  include <runtime_abi.h>
+# else
+#  include "../core/runtime_abi.h"
+# endif
+#else
+# include "../core/runtime_abi.h"
+#endif
 
 static encore_str rich_str(const char *value) {
     encore_str result = {(encore_str_object *)encore_str_from_cstr(value)};
@@ -99,13 +98,9 @@ encore_str encore_rich_spinner_frame(size_t style, size_t index) {
     return rich_str(known->frames[index % known->count]);
 }
 
-bool encore_rich_is_terminal(int32_t fd) {
-#ifdef _WIN32
-    return fd >= 0 && _isatty(fd) != 0;
-#else
-    return fd >= 0 && isatty(fd) != 0;
-#endif
-}
+extern bool encore_terminal_is_tty(int32_t fd);
+extern bool encore_terminal_color_enabled(int32_t fd);
+bool encore_rich_is_terminal(int32_t fd) { return encore_terminal_is_tty(fd); }
 
 static _Atomic bool g_running = false;
 static bool g_started = false;
@@ -172,10 +167,10 @@ static void wake_thread(void) {
 }
 
 static char *copy_string(encore_str value) {
-    size_t len = value.object == NULL ? 0 : value.object->len;
+    size_t len = encore_str_size(value);
     char *copy = (char *)malloc(len + 1);
     if (copy == NULL) return NULL;
-    if (len > 0) memcpy(copy, value.object->data, len);
+    if (len > 0) memcpy(copy, encore_str_data(value), len);
     copy[len] = '\0';
     return copy;
 }
@@ -340,7 +335,7 @@ size_t encore_rich_live_start(encore_str label, encore_str frames, size_t interv
     /* Nested callers obtain a reporter, never replace the command owner. */
     if (atomic_load(&g_live_session) != 0 || !live_terminal_supported()) return 0;
     g_live_started = live_clock_ms();
-    g_live_color = getenv("NO_COLOR") == NULL;
+    g_live_color = encore_terminal_color_enabled(2);
     g_live_partial = false;
     stop_spinner_thread();
     if (++g_live_generation == 0) ++g_live_generation;

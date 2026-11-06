@@ -1,5 +1,7 @@
-import rich::{Console, Layout, LiveFrame, LiveView, ProgressView}
-
+import rich::layout::Layout
+import rich::live::{LiveFrame, LiveView}
+import rich::presentation::Console
+import rich::progress::ProgressView
 fn main() -> u32 {
     let console = Console::new()
 

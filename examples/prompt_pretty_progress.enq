@@ -1,6 +1,9 @@
 import core::vec::Vec
-import rich::{Console, PrettyPrinter, ProgressBar, Prompt, SelectPrompt, pretty_list}
 
+import rich::presentation::Console
+import rich::pretty::{PrettyPrinter, pretty_list}
+import rich::progress::ProgressBar
+import rich::prompt::{Prompt, SelectPrompt}
 fn main() -> u32 {
     let console = Console::new()
     let printer = PrettyPrinter::new()

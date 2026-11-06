@@ -1,6 +1,30 @@
 # rich
 
-Console rendering helpers inspired by Rich.
+Console rendering helpers inspired by Rich. ANSI colors/styles now live in
+`rich::ansi`; there is no separate colorterm SDK package. `rich` itself depends
+only on std. The root facade exports Console, Text, Color, Style, styled and
+reset. Import individual renderers explicitly. Advanced Console methods are
+provided by `rich::presentation::Console`; JSON methods by
+`rich::json_console::Console`.
+
+Adapters are imported explicitly; applications add their own json/log
+dependencies when they use them. The rich package never imports either package,
+including when a bootstrap seed compiles every library module.
+
+`rich::json_render::render_json(value.stringify())` formats a parsed value.
+`render_json_source(text)` only changes layout: validate untrusted input with the
+application's JSON parser first. It now returns str directly. Console methods are
+available through `rich::json_console::Console`.
+
+`rich::logging::level_labels()` returns a palette for `Formatter::with_labels`;
+construct the logger with `log::Logger::console_with_formatter`. Rich no longer
+owns a separate logger builder or file/writer wrappers. Use log's Logger and
+sink APIs for those. Console output checks the destination TTY, non-empty
+NO_COLOR and TERM=dumb. Explicit `styled` returns escape sequences regardless of
+terminal policy.
+
+The redundant build.enq has been removed: Encore discovers runtime.c directly.
+
 
 Current modules:
 
@@ -30,7 +54,7 @@ Current modules:
 - `Table`
 - `TreeNode`
 - `CompilerReport`
-- `rich.logging` helpers over the `log` refrain
+- `rich.logging` palette adapters for caller-provided formatters
 
 Logical structure:
 
@@ -40,7 +64,7 @@ Logical structure:
 - `progress`, `live`, `status`, `spinner`: dynamic workflow views
 - `prompt`: interactive input, validation, retry, typed results
 - `pretty`, `inspect`, `json_render`, `traceback`: diagnostics and developer-facing output
-- `logging`: bridge to `log` with console/file/writer sinks
+- `logging`: palettes and formatter palette data; sinks belong to log
 
 Overview examples are available in the package's [`examples/`](examples/) directory:
 
@@ -56,7 +80,10 @@ Overview examples are available in the package's [`examples/`](examples/) direct
 ## Quick start
 
 ```encore
-import rich::{Console, Panel, Spinner, status}
+import rich::presentation::{Console}
+import rich::panel::{Panel}
+import rich::spinner::{Spinner}
+import rich::status::{status}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -71,7 +98,8 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Table}
+import rich::presentation::{Console}
+import rich::table::{Table}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -87,7 +115,9 @@ fn main() -> u32 {
 ## Progress and pretty output
 
 ```encore
-import rich::{Console, ProgressBar, pretty_kv}
+import rich::presentation::{Console}
+import rich::progress::{ProgressBar}
+import rich::pretty::{pretty_kv}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -101,7 +131,8 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Prompt, SelectPrompt}
+import rich::presentation::{Console}
+import rich::prompt::{Prompt, SelectPrompt}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -121,7 +152,7 @@ fn main() -> u32 {
 ```encore
 import core::vec::Vec
 import json::{Json, field}
-import rich::Console
+import rich::json_console::Console
 
 fn main() -> u32 {
     let console = Console::new()
@@ -135,7 +166,7 @@ fn main() -> u32 {
     let mut obj = Vec[(str, Json)]::new()
     obj.push(field("name", Json::String("encore")))
     obj.push(field("ok", Json::Bool(true)))
-    console.json(Json::Object(obj))
+    console.json(Json::Object(obj).stringify())
     ret 0_u32
 }
 ```
@@ -143,7 +174,10 @@ fn main() -> u32 {
 ## Layout and live progress
 
 ```encore
-import rich::{Console, Layout, LiveFrame, LiveView, ProgressView, StageProgress}
+import rich::presentation::{Console}
+import rich::layout::{Layout}
+import rich::live::{LiveFrame, LiveView}
+import rich::progress::{ProgressView, StageProgress}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -172,7 +206,9 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, LiveView, ProgressView, StageProgress, stage_summary}
+import rich::presentation::{Console}
+import rich::live::{LiveView}
+import rich::progress::{ProgressView, StageProgress, stage_summary}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -206,7 +242,8 @@ fn main() -> u32 {
 ## Traceback
 
 ```encore
-import rich::{Console, Traceback}
+import rich::presentation::{Console}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -223,7 +260,8 @@ fn main() -> u32 {
 ## Compiler Diagnostics
 
 ```encore
-import rich::{Console, Traceback}
+import rich::presentation::{Console}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -249,7 +287,11 @@ fn main() -> u32 {
 ## Compiler Report
 
 ```encore
-import rich::{CompilerReport, Console, StageProgress, Theme, Traceback}
+import rich::report::{CompilerReport}
+import rich::presentation::{Console}
+import rich::progress::{StageProgress}
+import rich::theme::{Theme}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -281,7 +323,9 @@ fn main() -> u32 {
 ## Theme and validators
 
 ```encore
-import rich::{Console, Prompt, Theme, parse_identifier, parse_usize_or}
+import rich::presentation::{Console}
+import rich::prompt::{Prompt, parse_identifier, parse_usize_or}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -300,7 +344,11 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, ProgressView, Prompt, RetryPolicy, Table, Theme}
+import rich::presentation::{Console}
+import rich::progress::{ProgressView}
+import rich::prompt::{Prompt, RetryPolicy}
+import rich::table::{Table}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -333,7 +381,9 @@ fn main() -> u32 {
 
 ```encore
 import core::result::Result
-import rich::{LiveFrame, ProgressView, parse_identifier_result}
+import rich::live::{LiveFrame}
+import rich::progress::{ProgressView}
+import rich::prompt::{parse_identifier_result}
 
 fn main() -> u32 {
     let mut progress = ProgressView::new("Build", 12_usize)
@@ -356,7 +406,8 @@ fn main() -> u32 {
 ## Named updates
 
 ```encore
-import rich::{LiveFrame, LiveView, ProgressView}
+import rich::live::{LiveFrame, LiveView}
+import rich::progress::{ProgressView}
 
 fn main() -> u32 {
     let mut progress = ProgressView::new("Build", 12_usize)
@@ -373,42 +424,28 @@ fn main() -> u32 {
 ## Logging
 
 ```encore
-import core::os::{file_exists, read_file, write_file}
-import log::Writable
-import rich::{RichLoggerBuilder, compact_formatter, file_logger}
+import log::{Formatter, Logger}
+import rich::logging::level_labels
 
-struct CaptureFile {
-    path: str
-}
-
-impl Writable for CaptureFile {
-    fn write(self: CaptureFile, value: str) -> i32 {
-        let mut current = ""
-        if file_exists(self.path) {
-            current = read_file(self.path)
-        }
-        ret write_file(self.path, current + value)
-    }
-}
-
-fn main() -> u32 {
-    let file = file_logger("bootstrap", "target/bootstrap.log")
-    file.warn("file log")
-
-    let mut builder = RichLoggerBuilder::new("bootstrap")
-    builder.add_console_with_formatter(compact_formatter())
-    builder.add_writer(CaptureFile{"target/bootstrap-writer.log"} as dyn Writable)
-    let logger = builder.build()
-    logger.info("console + writer log")
-    ret 0_u32
-}
+let formatter = Formatter::colored().with_labels(level_labels())
+let mut logger = Logger::console_with_formatter("bootstrap", formatter)
+logger.add_file_sink("target/bootstrap.log")
+logger.info("console and plain file output")
 ```
+
+The formatter is supplied by the application, so merely using Rich's console
+loads no logging dependency. Use `formatter.with_target(false)` to hide the target and `with_color(false)`
+to disable color.
 
 ## Dashboard Helpers
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Layout, Panel, Table, Theme}
+import rich::presentation::{Console}
+import rich::layout::{Layout}
+import rich::panel::{Panel}
+import rich::table::{Table}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()

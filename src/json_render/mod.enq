@@ -1,139 +1,91 @@
-import core::option::Option
-import core::result::Result
-import core::testing::assert
-import core::vec::Vec
-import json::{Json, ParseError, parse}
+//! Presentation accepts JSON text; values are stringified by the caller.
+//! Data parsing stays in the caller's codec package.
+extern fn encore_text_builder_new() -> usize
+extern fn encore_text_builder_append(builder: usize, value: str) ->()
+extern fn encore_text_builder_finish(builder: usize) -> str
 
-pub fn render_json(value: Json) -> str {
-    ret render_json_level(value, 0_usize)
+pub fn render_json(source: str) -> str {
+    ret indent_json(source)
 }
 
-pub fn render_json_source(source: str) -> Result[str, str] {
-    match parse(source) {
-        Result[Json, ParseError]::Ok(value) => {
-            ret Result[str, str]::Ok(render_json(value))
-        }
-        Result[Json, ParseError]::Err(err) => {
-            ret Result[str, str]::Err(err.message())
-        }
-    }
+/// Formats JSON text without parsing it. Validate untrusted text with the
+/// caller's JSON package before rendering; pass value.stringify() when a parsed value is available.
+pub fn render_json_source(source: str) -> str {
+    ret indent_json(source)
 }
 
-fn render_json_level(value: Json, indent: usize) -> str {
-    match value {
-        Json::Null => {
-            ret "null"
-        }
-        Json::Bool(flag) => {
-            if flag {
-                ret "true"
-            }
-            ret "false"
-        }
-        Json::Number(text) => {
-            ret text
-        }
-        Json::String(text) => {
-            ret "\"" + text + "\""
-        }
-        Json::Array(values) => {
-            ret render_array(values, indent)
-        }
-        Json::Object(fields) => {
-            ret render_object(fields, indent)
-        }
+fn append(builder: usize, value: str) ->() {
+    unsafe {
+        encore_text_builder_append(builder, value)
     }
 }
-
-fn render_array(values: Vec[Json], indent: usize) -> str {
-    if values.len() == 0_usize {
-        ret "[]"
-    }
-    let mut out = "[\n"
-    let mut index = 0_usize
-    loop {
-        match values.get(index) {
-            Option[Json]::Some(value) => {
-                out += spaces(indent + 2_usize) + render_json_level(value, indent + 2_usize)
-                index = index + 1_usize
-                if index < values.len() {
-                    out += ","
-                }
-                out += "\n"
-            }
-            Option[Json]::None => {
-                break
-            }
-        }
-    }
-    out += spaces(indent) + "]"
-    ret out
-}
-
-fn render_object(fields: Vec[(str, Json)], indent: usize) -> str {
-    if fields.len() == 0_usize {
-        ret "{}"
-    }
-    let mut out = "{\n"
-    let mut index = 0_usize
-    loop {
-        match fields.get(index) {
-            Option[(str, Json)]::Some(field) => {
-                out += spaces(indent + 2_usize) + "\"" + field.0 + "\": " + render_json_level(field.1, indent + 2_usize)
-                index = index + 1_usize
-                if index < fields.len() {
-                    out += ","
-                }
-                out += "\n"
-            }
-            Option[(str, Json)]::None => {
-                break
-            }
-        }
-    }
-    out += spaces(indent) + "}"
-    ret out
-}
-
-fn spaces(count: usize) -> str {
-    let mut out = ""
-    let mut index = 0_usize
-    while index < count {
-        out += " "
-        index = index + 1_usize
-    }
-    ret out
-}
-
-#attr(test)
-fn json_render_formats_objects_and_arrays() -> bool {
-    match render_json_source("{\"name\":\"encore\",\"items\":[1,true]}") {
-        Result[str, str]::Ok(rendered) => {
-            ret assert(str_contains(rendered, "\"name\": \"encore\""))
-            && assert(str_contains(rendered, "\"items\": ["))
-            && assert(str_contains(rendered, "true"))
-        }
-        Result[str, str]::Err(err) => {
-            ret false
-        }
+fn line(builder: usize, depth: usize) ->() {
+    append(builder, "\n")
+    for _ in 0..depth {
+        append(builder, "  ")
     }
 }
-
-fn str_contains(value: str, needle: str) -> bool {
-    let needle_len = needle.char_len()
-    let value_len = value.char_len()
-    if needle_len == 0_usize {
-        ret true
+// Input comes from the value's stringify implementation, so this function
+// only handles layout. Quotes and escapes are copied without reinterpretation.
+fn indent_json(source: str) -> str {
+    let builder = unsafe {
+        encore_text_builder_new()
     }
-    if needle_len > value_len {
-        ret false
-    }
+    let mut depth = 0_usize
     let mut start = 0_usize
-    while start + needle_len <= value_len {
-        if value.slice(start, needle_len) == needle {
-            ret true
+    let mut quoted = false
+    let mut escaped = false
+    for i in 0..source.byte_len() {
+        let byte = source.byte_at(i)
+        if quoted {
+            if escaped {
+                escaped = false
+            } elif byte == 92 {
+                escaped = true
+            } elif byte == 34 {
+                quoted = false
+            }
+            continue
         }
-        start = start + 1_usize
+        if byte == 34 {
+            quoted = true continue
+        }
+        if byte == 123 || byte == 91 {
+            append(builder, source.slice_bytes(start, i + 1 - start))
+            let closing = if byte == 123 {
+                125_u8
+            } else {
+                93_u8
+            }
+            if i + 1 < source.byte_len() && source.byte_at(i + 1) != closing {
+                depth += 1 line(builder, depth)
+            }
+            start = i + 1
+        } elif byte == 125 || byte == 93 {
+            let opening = if byte == 125 {
+                123_u8
+            } else {
+                91_u8
+            }
+            let empty = i != 0 && source.byte_at(i - 1) == opening
+            append(builder, source.slice_bytes(start, i - start))
+            if !empty {
+                if depth > 0 {
+                    depth -= 1
+                }
+                line(builder, depth)
+            }
+            append(builder, source.slice_bytes(i, 1)) start = i + 1
+        } elif byte == 44 {
+            append(builder, source.slice_bytes(start, i + 1 - start))
+            line(builder, depth) start = i + 1
+        } elif byte == 58 {
+            append(builder, source.slice_bytes(start, i + 1 - start))
+            append(builder, " ") start = i + 1
+        }
     }
-    ret false
+    append(builder, source.slice_bytes(start, source.byte_len() - start))
+    unsafe {
+        ret encore_text_builder_finish(builder)
+    }
 }

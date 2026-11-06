@@ -1,7 +1,16 @@
 import core::vec::Vec
-import json::{Json, field}
-import rich::{Console, Layout, Panel, ProgressBar, ProgressView, Spinner, Table, Text, TreeNode, pretty_list, status}
 
+import json::{Json, field}
+import rich::json_console::Console
+import rich::layout::Layout
+import rich::panel::Panel
+import rich::pretty::pretty_list
+import rich::progress::{ProgressBar, ProgressView}
+import rich::spinner::Spinner
+import rich::status::status
+import rich::table::Table
+import rich::text::Text
+import rich::tree::TreeNode
 fn main() -> u32 {
     let console = Console::new()
 
@@ -44,6 +53,6 @@ fn main() -> u32 {
     let mut payload = Vec[(str, Json)]::new()
     payload.push(field("project", Json::String("encore")))
     payload.push(field("bootstrap", Json::Bool(true)))
-    console.json(Json::Object(payload))
+    console.json(Json::Object(payload).stringify())
     ret 0_u32
 }

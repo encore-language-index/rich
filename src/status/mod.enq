@@ -1,8 +1,8 @@
-import colorterm::{styled, Color, Style}
 import core::testing::assert
 
+import refrain::ansi::{Color, Style, styled}
 import refrain::spinner::Spinner
-import refrain::style::{info_label, success_label, warn_label, error_label}
+import refrain::style::{error_label, info_label, success_label, warn_label}
 
 pub fn status(spinner: Spinner, index: usize, message: str) -> str {
     ret styled(spinner.frame(index), Color::Cyan, Style::Normal) + " " + message
