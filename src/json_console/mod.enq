@@ -1,9 +1,9 @@
-pub import refrain::presentation::Console
 import refrain::json_render::{render_json, render_json_source}
+pub import refrain::presentation::Console
 
 impl for Console {
-    pub fn json[Value](self, value: Value) ->() {
-        self.println(render_json(value))
+    pub fn json(self, source: str) ->() {
+        self.println(render_json(source))
     }
 
     pub fn json_source(self, source: str) ->() {

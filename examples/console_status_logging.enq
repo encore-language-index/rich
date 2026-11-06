@@ -1,17 +1,18 @@
-import log::{Logger, Formatter}
-import rich::logging::colored_formatter
 import core::vec::Vec
+
 import json::{Json, field}
-import rich::json_console::{Console}
-import rich::layout::{Layout}
+import log::{Formatter, Logger}
+import rich::json_console::Console
+import rich::layout::Layout
 import rich::live::{LiveFrame, LiveView}
-import rich::panel::{Panel}
+import rich::logging::level_labels
+import rich::panel::Panel
+import rich::pretty::pretty_kv
 import rich::progress::{ProgressBar, ProgressView}
-import rich::spinner::{Spinner}
-import rich::table::{Table}
-import rich::tree::{TreeNode}
-import rich::pretty::{pretty_kv}
-import rich::status::{status}
+import rich::spinner::Spinner
+import rich::status::status
+import rich::table::Table
+import rich::tree::TreeNode
 fn main() -> u32 {
     let console = Console::new()
     console.rule("Build")
@@ -60,14 +61,14 @@ fn main() -> u32 {
     let mut payload = Vec[(str, Json)]::new()
     payload.push(field("project", Json::String("encore")))
     payload.push(field("ok", Json::Bool(true)))
-    console.json(Json::Object(payload))
+    console.json(Json::Object(payload).stringify())
 
     let mut live = LiveView::new()
     live.push(LiveFrame::new("Tick 1", "parse modules"))
     live.push(LiveFrame::with_footer("Tick 2", "translate eHIR", "done"))
     console.live_view(live)
 
-    let logger = Logger::console_with_formatter("rich-example", colored_formatter(Formatter::plain()))
+    let logger = Logger::console_with_formatter("rich-example", Formatter::colored().with_labels(level_labels()))
     logger.info("example complete")
     ret 0_u32
 }

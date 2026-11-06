@@ -1,5 +1,5 @@
-import rich::presentation::{Console}
-import rich::traceback::{Traceback}
+import rich::presentation::Console
+import rich::traceback::Traceback
 fn main() -> u32 {
     let console = Console::new()
 

@@ -11,12 +11,12 @@ Adapters are imported explicitly; applications add their own json/log
 dependencies when they use them. The rich package never imports either package,
 including when a bootstrap seed compiles every library module.
 
-`rich::json_render::render_json(value)` accepts a parsed value with `stringify()`.
+`rich::json_render::render_json(value.stringify())` formats a parsed value.
 `render_json_source(text)` only changes layout: validate untrusted input with the
 application's JSON parser first. It now returns str directly. Console methods are
 available through `rich::json_console::Console`.
 
-`rich::logging::colored_formatter(formatter)` decorates the supplied formatter;
+`rich::logging::level_labels()` returns a palette for `Formatter::with_labels`;
 construct the logger with `log::Logger::console_with_formatter`. Rich no longer
 owns a separate logger builder or file/writer wrappers. Use log's Logger and
 sink APIs for those. Console output checks the destination TTY, non-empty
@@ -64,7 +64,7 @@ Logical structure:
 - `progress`, `live`, `status`, `spinner`: dynamic workflow views
 - `prompt`: interactive input, validation, retry, typed results
 - `pretty`, `inspect`, `json_render`, `traceback`: diagnostics and developer-facing output
-- `logging`: palettes and generic formatter adapters; sinks belong to log
+- `logging`: palettes and formatter palette data; sinks belong to log
 
 Overview examples are available in the package's [`examples/`](examples/) directory:
 
@@ -166,7 +166,7 @@ fn main() -> u32 {
     let mut obj = Vec[(str, Json)]::new()
     obj.push(field("name", Json::String("encore")))
     obj.push(field("ok", Json::Bool(true)))
-    console.json(Json::Object(obj))
+    console.json(Json::Object(obj).stringify())
     ret 0_u32
 }
 ```
@@ -425,17 +425,17 @@ fn main() -> u32 {
 
 ```encore
 import log::{Formatter, Logger}
-import rich::logging::colored_formatter
+import rich::logging::level_labels
 
-let formatter = colored_formatter(Formatter::plain())
+let formatter = Formatter::colored().with_labels(level_labels())
 let mut logger = Logger::console_with_formatter("bootstrap", formatter)
 logger.add_file_sink("target/bootstrap.log")
 logger.info("console and plain file output")
 ```
 
 The formatter is supplied by the application, so merely using Rich's console
-loads no logging dependency. `compact_formatter(formatter)` hides the target;
-`plain_compact_formatter(formatter)` also disables color.
+loads no logging dependency. Use `formatter.with_target(false)` to hide the target and `with_color(false)`
+to disable color.
 
 ## Dashboard Helpers
 

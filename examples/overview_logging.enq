@@ -1,6 +1,7 @@
 import std::os::{file_exists, read_file, write_file}
-import log::{Writable, Logger, Formatter}
-import rich::logging::compact_formatter
+
+import log::{Formatter, Logger, Writable}
+import rich::logging::level_labels
 
 struct CaptureWriter {
     path: str
@@ -17,7 +18,7 @@ impl Writable for CaptureWriter {
 }
 
 fn main() -> u32 {
-    let console = Logger::console_with_formatter("rich-console", compact_formatter(Formatter::plain()))
+    let console = Logger::console_with_formatter("rich-console", Formatter::colored().with_labels(level_labels()).with_target(false))
     console.info("console sink ready")
 
     let mut file = Logger::new("rich-file")
@@ -25,7 +26,7 @@ fn main() -> u32 {
     file.warn("file sink ready")
 
     let mut writer = Logger::new("rich-writer")
-    writer.add_writer_sink(CaptureWriter{"target/rich-writer.log"} as dyn Writable)
+    writer.add_writer_sink(CaptureWriter { "target/rich-writer.log" } as dyn Writable)
     writer.error("writer sink ready")
     ret 0_u32
 }

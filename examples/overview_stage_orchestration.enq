@@ -1,9 +1,10 @@
 import core::vec::Vec
-import rich::presentation::{Console}
-import rich::layout::{Layout}
-import rich::live::{LiveView}
+
+import rich::layout::Layout
+import rich::live::LiveView
+import rich::presentation::Console
 import rich::progress::{ProgressView, StageProgress, stage_summary}
-import rich::theme::{Theme}
+import rich::theme::Theme
 fn main() -> u32 {
     let console = Console::new()
     let theme = Theme::compiler()

@@ -1,10 +1,11 @@
 import core::fmt::Debug
 import core::result::Result
 import core::vec::Vec
-import rich::presentation::{Console}
+
 import rich::live::{LiveFrame, LiveView}
+import rich::presentation::Console
 import rich::prompt::{Prompt, RetryPolicy, SelectPrompt}
-import rich::theme::{Theme}
+import rich::theme::Theme
 import rich::traceback::{TraceFrame, Traceback}
 fn main() -> u32 {
     let console = Console::new()
@@ -51,14 +52,14 @@ fn main() -> u32 {
 
     let mut tb = Traceback::new("CompileError", "unresolved import")
     tb.push_frame(TraceFrame::with_context(
-        "frontend/imports.enq",
-        "resolve_import",
-        18_usize,
-        7_usize,
-        "use std::fs",
-        "import foo::bar",
-        "ret manifest",
-    ))
+            "frontend/imports.enq",
+            "resolve_import",
+            18_usize,
+            7_usize,
+            "use std::fs",
+            "import foo::bar",
+            "ret manifest",
+        ))
     console.traceback(tb)
     ret 0_u32
 }

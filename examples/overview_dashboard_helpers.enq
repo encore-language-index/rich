@@ -1,9 +1,10 @@
 import core::vec::Vec
-import rich::presentation::{Console}
-import rich::layout::{Layout}
-import rich::panel::{Panel}
-import rich::table::{Table}
-import rich::theme::{Theme}
+
+import rich::layout::Layout
+import rich::panel::Panel
+import rich::presentation::Console
+import rich::table::Table
+import rich::theme::Theme
 fn main() -> u32 {
     let console = Console::new()
     let theme = Theme::compiler()

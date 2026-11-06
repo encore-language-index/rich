@@ -1,9 +1,10 @@
 import core::vec::Vec
-import rich::presentation::{Console}
-import rich::progress::{ProgressView}
+
+import rich::presentation::Console
+import rich::progress::ProgressView
 import rich::prompt::{Prompt, RetryPolicy}
-import rich::table::{Table}
-import rich::theme::{Theme}
+import rich::table::Table
+import rich::theme::Theme
 import rich::traceback::{TraceFrame, Traceback}
 fn main() -> u32 {
     let console = Console::new()

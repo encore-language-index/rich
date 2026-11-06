@@ -1,6 +1,6 @@
-//! Rich owns the palette; the caller supplies its logging formatter.
+//! Rich owns palette data; applications inject it into their log formatter.
 import core::vec::Vec
-import refrain::ansi::{styled, Color, Style}
+import refrain::ansi::{Color, Style, styled}
 
 pub fn level_labels() -> Vec[str] {
     let mut labels = Vec[str]::with_capacity(6)
@@ -11,17 +11,4 @@ pub fn level_labels() -> Vec[str] {
     labels.push(styled("[ERROR]", Color::Red, Style::Bold))
     labels.push(styled("[FATAL]", Color::Magenta, Style::Bold))
     ret labels
-}
-
-/// Terminal sinks apply TTY/NO_COLOR policy when writing.
-pub fn colored_formatter[Formatter](formatter: Formatter) -> Formatter {
-    ret formatter.with_labels(level_labels()).with_color(true)
-}
-
-pub fn compact_formatter[Formatter](formatter: Formatter) -> Formatter {
-    ret colored_formatter(formatter).with_target(false)
-}
-
-pub fn plain_compact_formatter[Formatter](formatter: Formatter) -> Formatter {
-    ret formatter.with_color(false).with_target(false)
 }

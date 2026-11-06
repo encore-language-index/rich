@@ -1,12 +1,13 @@
 import core::vec::Vec
-import rich::presentation::{Console}
-import rich::panel::{Panel}
-import rich::table::{Table}
-import rich::theme::{Theme}
-import rich::traceback::{Traceback}
-import rich::inspect::{inspect_compiler_state}
-import rich::pretty::{pretty_kv}
-import rich::markup::{render_markup}
+
+import rich::inspect::inspect_compiler_state
+import rich::markup::render_markup
+import rich::panel::Panel
+import rich::presentation::Console
+import rich::pretty::pretty_kv
+import rich::table::Table
+import rich::theme::Theme
+import rich::traceback::Traceback
 fn main() -> u32 {
     let console = Console::new()
     let theme = Theme::compiler()

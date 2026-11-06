@@ -1,7 +1,8 @@
 import core::vec::Vec
-import rich::presentation::{Console}
+
+import rich::presentation::Console
 import rich::pretty::{PrettyPrinter, pretty_list}
-import rich::progress::{ProgressBar}
+import rich::progress::ProgressBar
 import rich::prompt::{Prompt, SelectPrompt}
 fn main() -> u32 {
     let console = Console::new()
