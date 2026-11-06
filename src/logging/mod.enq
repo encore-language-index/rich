@@ -1,3 +1,5 @@
+import core::vec::Vec
+import refrain::ansi::{styled, Color, Style}
 import core::testing::assert
 import std::os::{file_exists, read_file, write_file}
 
@@ -20,7 +22,7 @@ impl for RichLoggerBuilder {
     }
 
     pub fn add_console(self: mut Self) ->() {
-        self.logger.add_sink(ConsoleSink::stdout() as dyn LogSink)
+        self.logger.add_sink(ConsoleSink::new(colored_formatter(), false) as dyn LogSink)
         ret()
     }
 
@@ -35,7 +37,7 @@ impl for RichLoggerBuilder {
     }
 
     pub fn add_stderr(self: mut Self) ->() {
-        self.logger.add_sink(ConsoleSink::stderr() as dyn LogSink)
+        self.logger.add_sink(ConsoleSink::new(colored_formatter(), true) as dyn LogSink)
         ret()
     }
 
@@ -75,7 +77,7 @@ impl for RichLoggerBuilder {
 }
 
 pub fn console_logger(target: str) -> Logger {
-    ret Logger::console(target)
+    ret console_logger_with_formatter(target, colored_formatter())
 }
 
 pub fn console_logger_with_formatter(target: str, formatter: Formatter) -> Logger {
@@ -91,7 +93,7 @@ pub fn plain_console_logger(target: str) -> Logger {
 }
 
 pub fn stderr_logger(target: str) -> Logger {
-    ret Logger::stderr(target)
+    ret stderr_logger_with_formatter(target, colored_formatter())
 }
 
 pub fn stderr_logger_with_formatter(target: str, formatter: Formatter) -> Logger {
@@ -131,7 +133,7 @@ pub fn writer_logger_with_formatter(target: str, writer: dyn Writable, formatter
 }
 
 pub fn compact_formatter() -> Formatter {
-    ret Formatter::colored().with_target(false)
+    ret colored_formatter().with_target(false)
 }
 
 pub fn plain_compact_formatter() -> Formatter {
@@ -245,4 +247,16 @@ fn str_contains(value: str, needle: str) -> bool {
         start = start + 1_usize
     }
     ret false
+}
+
+/// Coloring is owned by Rich. ConsoleSink checks TTY/NO_COLOR at write time.
+pub fn colored_formatter() -> Formatter {
+    let mut labels = Vec[str]::new()
+    labels.push(styled("[TRACE]", Color::White, Style::Dim))
+    labels.push(styled("[DEBUG]", Color::Blue, Style::Normal))
+    labels.push(styled("[INFO]", Color::Cyan, Style::Normal))
+    labels.push(styled("[WARN]", Color::Yellow, Style::Bold))
+    labels.push(styled("[ERROR]", Color::Red, Style::Bold))
+    labels.push(styled("[FATAL]", Color::Magenta, Style::Bold))
+    ret Formatter::colored().with_labels(labels)
 }

@@ -1,4 +1,4 @@
-import colorterm::{styled, Color, Style}
+import refrain::ansi::{styled, Color, Style}
 
 pub struct Text {
     value: str

@@ -6,9 +6,9 @@ encore = ">=0.1.14"
 description = "Console rendering helpers inspired by Rich"
 readme = "README.md"
 licence = "MIT"
-dependencies = [
-    "path@../std",
-    "path@../colorterm",
-    "path@../json",
-    "path@../log",
-]
+dependencies = ["path@../std"]
+
+[features]
+json = ["path@../json"]
+logging = ["path@../log"]
+full = ["json", "logging"]

@@ -4,7 +4,7 @@ import std::io::eprintln
 import std::time::perf_counter_ms
 import std::vec::Vec
 
-import colorterm::{Color, Style, styled}
+import refrain::ansi::{Color, Style, styled}
 
 import refrain::native::{progress_available, terminal_spinner_start, terminal_spinner_stop}
 import refrain::spinner::Spinner

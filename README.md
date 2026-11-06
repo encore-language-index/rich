@@ -1,6 +1,26 @@
 # rich
 
-Console rendering helpers inspired by Rich.
+Console rendering helpers inspired by Rich. ANSI colors/styles now live in
+`rich::ansi`; there is no separate colorterm SDK package. `rich` itself depends
+only on std. The root facade exports Console, Text, Color, Style, styled and
+reset. Import individual renderers explicitly. Advanced Console methods are
+provided by `rich::presentation::Console`; JSON methods by
+`rich::json_console::Console`.
+
+Optional adapters require dependency features:
+
+```toml
+dependencies = ["path@../rich[json,logging]"]
+```
+
+Use `rich::json_render` / `rich::json_console` with `json`, and
+`rich::logging` with `logging` (or request `full`). Color labels for logging are
+supplied here; the log package has no dependency back to Rich. Console output
+checks the destination TTY, non-empty NO_COLOR and TERM=dumb. Explicit `styled`
+returns escape sequences regardless of terminal policy.
+
+The redundant build.enq has been removed: Encore discovers runtime.c directly.
+
 
 Current modules:
 
@@ -56,7 +76,10 @@ Overview examples are available in the package's [`examples/`](examples/) direct
 ## Quick start
 
 ```encore
-import rich::{Console, Panel, Spinner, status}
+import rich::presentation::{Console}
+import rich::panel::{Panel}
+import rich::spinner::{Spinner}
+import rich::status::{status}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -71,7 +94,8 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Table}
+import rich::presentation::{Console}
+import rich::table::{Table}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -87,7 +111,9 @@ fn main() -> u32 {
 ## Progress and pretty output
 
 ```encore
-import rich::{Console, ProgressBar, pretty_kv}
+import rich::presentation::{Console}
+import rich::progress::{ProgressBar}
+import rich::pretty::{pretty_kv}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -101,7 +127,8 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Prompt, SelectPrompt}
+import rich::presentation::{Console}
+import rich::prompt::{Prompt, SelectPrompt}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -121,7 +148,7 @@ fn main() -> u32 {
 ```encore
 import core::vec::Vec
 import json::{Json, field}
-import rich::Console
+import rich::presentation::Console
 
 fn main() -> u32 {
     let console = Console::new()
@@ -143,7 +170,10 @@ fn main() -> u32 {
 ## Layout and live progress
 
 ```encore
-import rich::{Console, Layout, LiveFrame, LiveView, ProgressView, StageProgress}
+import rich::presentation::{Console}
+import rich::layout::{Layout}
+import rich::live::{LiveFrame, LiveView}
+import rich::progress::{ProgressView, StageProgress}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -172,7 +202,9 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, LiveView, ProgressView, StageProgress, stage_summary}
+import rich::presentation::{Console}
+import rich::live::{LiveView}
+import rich::progress::{ProgressView, StageProgress, stage_summary}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -206,7 +238,8 @@ fn main() -> u32 {
 ## Traceback
 
 ```encore
-import rich::{Console, Traceback}
+import rich::presentation::{Console}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -223,7 +256,8 @@ fn main() -> u32 {
 ## Compiler Diagnostics
 
 ```encore
-import rich::{Console, Traceback}
+import rich::presentation::{Console}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -249,7 +283,11 @@ fn main() -> u32 {
 ## Compiler Report
 
 ```encore
-import rich::{CompilerReport, Console, StageProgress, Theme, Traceback}
+import rich::report::{CompilerReport}
+import rich::presentation::{Console}
+import rich::progress::{StageProgress}
+import rich::theme::{Theme}
+import rich::traceback::{Traceback}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -281,7 +319,9 @@ fn main() -> u32 {
 ## Theme and validators
 
 ```encore
-import rich::{Console, Prompt, Theme, parse_identifier, parse_usize_or}
+import rich::presentation::{Console}
+import rich::prompt::{Prompt, parse_identifier, parse_usize_or}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -300,7 +340,11 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, ProgressView, Prompt, RetryPolicy, Table, Theme}
+import rich::presentation::{Console}
+import rich::progress::{ProgressView}
+import rich::prompt::{Prompt, RetryPolicy}
+import rich::table::{Table}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()
@@ -333,7 +377,9 @@ fn main() -> u32 {
 
 ```encore
 import core::result::Result
-import rich::{LiveFrame, ProgressView, parse_identifier_result}
+import rich::live::{LiveFrame}
+import rich::progress::{ProgressView}
+import rich::prompt::{parse_identifier_result}
 
 fn main() -> u32 {
     let mut progress = ProgressView::new("Build", 12_usize)
@@ -356,7 +402,8 @@ fn main() -> u32 {
 ## Named updates
 
 ```encore
-import rich::{LiveFrame, LiveView, ProgressView}
+import rich::live::{LiveFrame, LiveView}
+import rich::progress::{ProgressView}
 
 fn main() -> u32 {
     let mut progress = ProgressView::new("Build", 12_usize)
@@ -375,7 +422,7 @@ fn main() -> u32 {
 ```encore
 import core::os::{file_exists, read_file, write_file}
 import log::Writable
-import rich::{RichLoggerBuilder, compact_formatter, file_logger}
+import rich::logging::{RichLoggerBuilder, compact_formatter, file_logger}
 
 struct CaptureFile {
     path: str
@@ -408,7 +455,11 @@ fn main() -> u32 {
 
 ```encore
 import core::vec::Vec
-import rich::{Console, Layout, Panel, Table, Theme}
+import rich::presentation::{Console}
+import rich::layout::{Layout}
+import rich::panel::{Panel}
+import rich::table::{Table}
+import rich::theme::{Theme}
 
 fn main() -> u32 {
     let console = Console::new()
