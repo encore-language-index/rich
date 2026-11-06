@@ -1,8 +1,11 @@
 import std::io::{print, println}
 import std::terminal::color_enabled
-import refrain::style::{info_label, success_label, warn_label, error_label}
 
-pub struct Console {}
+import refrain::style::{error_label, info_label, success_label, warn_label}
+
+pub struct Console {
+}
+
 impl for Console {
     pub fn new() -> Console {
         ret Console {
@@ -20,19 +23,39 @@ impl for Console {
     }
 
     pub fn info(self, message: str) ->() {
-        ret self.println((if color_enabled(1) { info_label() } else { "[info]" }) + " " + message)
+        ret self.println((if color_enabled(1) {
+                    info_label()
+                } else {
+                    "[info]"
+                }
+            ) + " " + message)
     }
 
     pub fn success(self, message: str) ->() {
-        ret self.println((if color_enabled(1) { success_label() } else { "[ok]" }) + " " + message)
+        ret self.println((if color_enabled(1) {
+                    success_label()
+                } else {
+                    "[ok]"
+                }
+            ) + " " + message)
     }
 
     pub fn warn(self, message: str) ->() {
-        ret self.println((if color_enabled(1) { warn_label() } else { "[warn]" }) + " " + message)
+        ret self.println((if color_enabled(1) {
+                    warn_label()
+                } else {
+                    "[warn]"
+                }
+            ) + " " + message)
     }
 
     pub fn error(self, message: str) ->() {
-        ret self.println((if color_enabled(1) { error_label() } else { "[error]" }) + " " + message)
+        ret self.println((if color_enabled(1) {
+                    error_label()
+                } else {
+                    "[error]"
+                }
+            ) + " " + message)
     }
 
     pub fn rule(self, label: str) ->() {

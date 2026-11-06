@@ -1,6 +1,7 @@
 import json::Json
-import refrain::json_render::{render_json, render_json_source}
+
 pub import refrain::console::Console
+import refrain::json_render::{render_json, render_json_source}
 
 impl for Console {
     pub fn json(self, value: Json) ->() {

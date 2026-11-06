@@ -1,9 +1,11 @@
-import core::vec::Vec
-import refrain::ansi::{styled, Color, Style}
 import core::testing::assert
+import core::vec::Vec
+
 import std::os::{file_exists, read_file, write_file}
 
 import log::{ConsoleSink, FileSink, Formatter, LogLevel, LogSink, Logger, Writable, WriterSink}
+
+import refrain::ansi::{Color, Style, styled}
 
 pub struct RichLoggerBuilder {
     logger: Logger

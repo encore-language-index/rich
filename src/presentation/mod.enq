@@ -1,7 +1,9 @@
 import core::result::Result
 import core::vec::Vec
+
 import std::io::{print, println}
 
+pub import refrain::console::Console
 import refrain::inspect::{inspect_compiler_state, inspect_fields, inspect_value}
 import refrain::layout::Layout
 import refrain::live::{LiveFrame, LiveView}
@@ -12,14 +14,12 @@ import refrain::progress::{ProgressBar, ProgressView, StageProgress}
 import refrain::prompt::{Prompt, RetryPolicy, SelectPrompt, ask_identifier, ask_identifier_result, ask_identifier_with_policy, ask_non_empty, ask_non_empty_result, ask_non_empty_with_policy, ask_select_result, ask_usize, ask_usize_result, ask_usize_with_policy, confirm, parse_identifier, parse_non_empty, parse_usize_or}
 import refrain::report::CompilerReport
 import refrain::spinner::Spinner
-import refrain::status::{status, status_info, status_ok, status_warn, status_fail}
-import refrain::style::{info_label, success_label, warn_label, error_label}
+import refrain::status::{status, status_fail, status_info, status_ok, status_warn}
+import refrain::style::{error_label, info_label, success_label, warn_label}
 import refrain::table::Table
 import refrain::theme::Theme
 import refrain::traceback::{Traceback, compiler_traceback}
 import refrain::tree::TreeNode
-
-pub import refrain::console::Console
 
 impl for Console {
     pub fn status(self, spinner: Spinner, index: usize, message: str) ->() {

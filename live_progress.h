@@ -281,12 +281,12 @@ void encore_rich_live_task(size_t session, size_t id, encore_str label, encore_s
     for (size_t index = 0; index < g_live_count; ++index) {
         rich_live_task *task = &g_live_tasks[index];
         if (task->id != id) continue;
-        size_t label_len = label.object == NULL ? 0 : label.object->len;
-        size_t stage_len = stage.object == NULL ? 0 : stage.object->len;
+        size_t label_len = encore_str_size(label);
+        size_t stage_len = encore_str_size(stage);
         unchanged = task->complete || (!complete && strlen(task->label) == label_len &&
                     strlen(task->stage) == stage_len &&
-                    (label_len == 0 || memcmp(task->label, label.object->data, label_len) == 0) &&
-                    (stage_len == 0 || memcmp(task->stage, stage.object->data, stage_len) == 0));
+                    (label_len == 0 || memcmp(task->label, encore_str_data(label), label_len) == 0) &&
+                    (stage_len == 0 || memcmp(task->stage, encore_str_data(stage), stage_len) == 0));
         break;
     }
     unlock_spinner();
